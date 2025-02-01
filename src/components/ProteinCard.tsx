@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeartPulse, Link, Copy } from 'lucide-react';
+import { HeartPulse, Link, Download } from 'lucide-react';
 import { ProteinData } from '../types/protein';
 import ProteinStatus from './ProteinStatus';
 import ProteinSequence from './ProteinSequence';
@@ -9,6 +9,31 @@ interface ProteinCardProps {
 }
 
 const ProteinCard: React.FC<ProteinCardProps> = ({ protein }) => {
+  const handleDownloadCSV = () => {
+    // Create CSV content
+    const csvContent = [
+      ['Field', 'Value'],
+      ['Host Gene Name', protein.hgene_name],
+      ['Target Gene Name', protein.tgene_name],
+      ['Sequence Description', protein.seq_desc || 'N/A'],
+      ['Host Gene Sequence', protein.hgene_seq],
+      ['Target Gene Sequence', protein.tgene_seq],
+      ['Frame Status', protein.isOutOfFrame ? 'Out of Frame' : 'In Frame'],
+      ['Analysis Status', protein.isAnalyzed ? 'Analyzed' : 'Pending Analysis']
+    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `protein_data_${protein.hgene_name}_${protein.tgene_name}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <div className="border-b border-gray-100 bg-gray-50 px-6 py-4">
@@ -35,6 +60,13 @@ const ProteinCard: React.FC<ProteinCardProps> = ({ protein }) => {
               </div>
             </div>
           </div>
+          <button
+            onClick={handleDownloadCSV}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download CSV</span>
+          </button>
         </div>
       </div>
 
