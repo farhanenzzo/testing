@@ -10,17 +10,32 @@ interface ProteinCardProps {
 
 const ProteinCard: React.FC<ProteinCardProps> = ({ protein }) => {
   const handleDownloadCSV = () => {
-    // Create CSV content
-    const csvContent = [
-      ['Field', 'Value'],
-      ['Host Gene Name', protein.hgene_name],
-      ['Target Gene Name', protein.tgene_name],
-      ['Sequence Description', protein.seq_desc || 'N/A'],
-      ['Host Gene Sequence', protein.hgene_seq],
-      ['Target Gene Sequence', protein.tgene_seq],
-      ['Frame Status', protein.isOutOfFrame ? 'Out of Frame' : 'In Frame'],
-      ['Analysis Status', protein.isAnalyzed ? 'Analyzed' : 'Pending Analysis']
-    ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    // Define CSV headers
+  const headers = [
+    'Host Gene Name',
+    'Target Gene Name',
+    'Sequence Description',
+    'Host Gene Sequence',
+    'Target Gene Sequence',
+    'Frame Status',
+    'Analysis Status'
+  ];
+
+  // Define CSV row values
+  const values = [
+    protein.hgene_name,
+    protein.tgene_name,
+    protein.seq_desc || 'N/A',
+    protein.hgene_seq,
+    protein.tgene_seq,
+    protein.isOutOfFrame ? 'Out of Frame' : 'In Frame',
+    protein.isAnalyzed ? 'Analyzed' : 'Pending Analysis'
+  ];
+
+  // Convert to CSV format
+  const csvContent = [headers, values]
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n');
 
     // Create blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
